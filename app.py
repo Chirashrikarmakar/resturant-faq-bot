@@ -144,33 +144,32 @@ def chat():
     if any(phrase in user_q for phrase in ["thank you","thanks","thx"]):
         return jsonify({"answer":"You're welcome! Have a nice day 😊"})
 
-    # Vegetarian menu option
-    if "vegetarian options" in user_q or "veg" in user_q:
+    # Menu handling (full menu or vegetarian)
+    if "menu" in user_q or "vegetarian options" in user_q or "veg" in user_q:
         for faq in faqs:
-            if faq["question"].lower() == "menu":
-                veg_text = ""
-                for line in faq["answer"].split("\n"):
+            if "menu" in faq["question"].lower() or "🍽️" in faq["question"]:
+                menu_lines = faq["answer"].split("\n")
+                response_lines = []
+                for line in menu_lines:
                     line = line.strip()
-                    if line.startswith("- "):
+                    if line.endswith(":"):
+                        response_lines.append(line)
+                    elif line.startswith("- "):
                         item_name = line[2:].split(" - ")[0].strip()
-                        if item_name in VEG_ITEMS:
-                            veg_text += line + "\n"
-                    elif line.endswith(":"):
-                        veg_text += line + "\n"
-                return jsonify({"answer": veg_text.strip()})
+                        # Vegetarian button filter
+                        if "vegetarian options" in user_q or "veg" in user_q:
+                            if item_name in VEG_ITEMS:
+                                response_lines.append(line)
+                        else:
+                            response_lines.append(line)
+                return jsonify({"answer":"\n".join(response_lines)})
 
-    # Check FAQs
+    # Check other FAQs
     for faq in faqs:
         q_lower = faq["question"].lower()
         keywords = [k.lower() for k in faq.get("keywords",[])]
         if user_q == q_lower or user_q in keywords:
             return jsonify({"answer": faq["answer"]})
-
-    # Fallback menu if Menu button clicked
-    if "menu" in user_q:
-        for faq in faqs:
-            if faq["question"].lower()=="menu":
-                return jsonify({"answer": faq["answer"]})
 
     # Default fallback
     return jsonify({"answer":"Sorry, I can help with menu, timings, location, and seating."})

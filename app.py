@@ -9,7 +9,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 faqs_path = os.path.join(BASE_DIR, "faqs.json")
 
 # Load FAQs
-with open(faqs_path, "r") as f:
+with open(faqs_path, "r", encoding="utf-8") as f:
     data = json.load(f)
 
 faqs = data["faqs"]
@@ -25,7 +25,7 @@ HTML_PAGE = """
         input { padding:8px; width:200px; }
         button { padding:8px 12px; margin:5px; border:none; border-radius:5px; background:#007BFF; color:white; cursor:pointer; }
         button:hover { background:#0056b3; }
-        #response { margin-top: 20px; white-space: pre-line; font-size: 16px; }
+        #response { margin-top: 20px; white-space: pre-line; font-size: 16px; text-align:left; display:inline-block; max-width:500px; }
     </style>
 </head>
 <body>
@@ -69,7 +69,6 @@ function sendQuick(text) {
 </html>
 """
 
-
 # Homepage route
 @app.route("/", methods=["GET"])
 def home():
@@ -83,7 +82,8 @@ def chat():
     for faq in faqs:
         for keyword in faq.get("keywords", []):
             if keyword.lower() in user_q:
-                return jsonify({"answer": faq["answer"]})
+                answer = faq["answer"].replace("\n", "<br>")  # format line breaks
+                return jsonify({"answer": answer})
 
     return jsonify({"answer": "Sorry, I can help with menu, timings, location, and seating."})
 

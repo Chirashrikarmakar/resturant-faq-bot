@@ -1,0 +1,28 @@
+{
+  "faqs": [
+    {
+      "question": "What are your opening hours?",
+      "answer": "We are open from 10 AM to 10 PM every day."
+    },
+    {
+      "question": "Do you offer home delivery?",
+      "answer": "Yes, we offer home delivery within a 5 km radius."
+    },
+    {
+      "question": "Where is the restaurant located?",
+      "answer": "We are located near City Center, Main Road."
+    },
+    {
+      "question": "Do you have vegetarian options?",
+      "answer": "Yes, we have a wide range of vegetarian dishes."
+    },
+    {
+      "question": "Is your hotel rooftop?",
+      "answer": "Yes, we have a beautiful rooftop dining area."
+    },
+    {
+      "question": "How many seats do you have?",
+      "answer": "We have seating capacity for approximately 80 guests."
+    }
+  ]
+}

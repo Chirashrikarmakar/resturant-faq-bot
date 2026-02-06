@@ -25,6 +25,7 @@ HTML_PAGE = """
         input { padding:8px; width:200px; }
         button { padding:8px 12px; margin:5px; border:none; border-radius:5px; background:#007BFF; color:white; cursor:pointer; }
         button:hover { background:#0056b3; }
+        #response { margin-top: 20px; white-space: pre-line; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -40,6 +41,9 @@ HTML_PAGE = """
         <button onclick="sendQuick('Opening Hours')">Opening Hours</button>
         <button onclick="sendQuick('Location')">Location</button>
         <button onclick="sendQuick('Seating')">Seating</button>
+        <button onclick="sendQuick('Vegetarian Options')">Vegetarian Options</button>
+        <button onclick="sendQuick('Rooftop')">Rooftop</button>
+        <button onclick="sendQuick('Home Delivery')">Home Delivery</button>
     </div>
 
 <script>
@@ -52,7 +56,7 @@ function send() {
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById("response").innerText = data.answer;
+        document.getElementById("response").innerHTML = data.answer;
     });
 }
 
@@ -64,6 +68,7 @@ function sendQuick(text) {
 </body>
 </html>
 """
+
 
 # Homepage route
 @app.route("/", methods=["GET"])

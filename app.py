@@ -14,36 +14,43 @@ with open(faqs_path, "r", encoding="utf-8") as f:
 
 faqs = data["faqs"]
 
-# HTML page with buttons
+# HTML page with proper layout
 HTML_PAGE = """
 <!DOCTYPE html>
 <html>
 <head>
     <title>Restaurant FAQ Bot</title>
     <style>
-        body { font-family: Arial; text-align:center; padding:20px; background:#f5f5f5; }
-        input { padding:8px; width:200px; }
-        button { padding:8px 12px; margin:5px; border:none; border-radius:5px; background:#007BFF; color:white; cursor:pointer; }
+        body { font-family: Arial; background:#f5f5f5; display:flex; justify-content:center; padding:20px; }
+        #container { width: 600px; background:white; padding:20px; border-radius:10px; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
+        h2 { text-align:center; }
+        #userInput { padding:10px; width:70%; margin-right:5px; }
+        button { padding:10px 15px; margin:5px; border:none; border-radius:5px; background:#007BFF; color:white; cursor:pointer; }
         button:hover { background:#0056b3; }
-        #response { margin-top: 20px; white-space: pre-line; font-size: 16px; text-align:left; display:inline-block; max-width:500px; }
+        #response { margin-top: 20px; white-space: pre-line; font-size:16px; line-height:1.5; }
+        #buttons { text-align:center; margin-top:10px; }
     </style>
 </head>
 <body>
-    <h2>Restaurant FAQ Bot</h2>
+    <div id="container">
+        <h2>Restaurant FAQ Bot</h2>
 
-    <input id="userInput" placeholder="Ask a question..." />
-    <button onclick="send()">Send</button>
+        <div>
+            <input id="userInput" placeholder="Ask a question..." />
+            <button onclick="send()">Send</button>
+        </div>
 
-    <p id="response"></p>
+        <div id="buttons">
+            <button onclick="sendQuick('Menu')">Menu</button>
+            <button onclick="sendQuick('Opening Hours')">Opening Hours</button>
+            <button onclick="sendQuick('Location')">Location</button>
+            <button onclick="sendQuick('Seating')">Seating</button>
+            <button onclick="sendQuick('Vegetarian Options')">Vegetarian Options</button>
+            <button onclick="sendQuick('Rooftop')">Rooftop</button>
+            <button onclick="sendQuick('Home Delivery')">Home Delivery</button>
+        </div>
 
-    <div>
-        <button onclick="sendQuick('Menu')">Menu</button>
-        <button onclick="sendQuick('Opening Hours')">Opening Hours</button>
-        <button onclick="sendQuick('Location')">Location</button>
-        <button onclick="sendQuick('Seating')">Seating</button>
-        <button onclick="sendQuick('Vegetarian Options')">Vegetarian Options</button>
-        <button onclick="sendQuick('Rooftop')">Rooftop</button>
-        <button onclick="sendQuick('Home Delivery')">Home Delivery</button>
+        <div id="response"></div>
     </div>
 
 <script>
@@ -82,7 +89,7 @@ def chat():
     for faq in faqs:
         for keyword in faq.get("keywords", []):
             if keyword.lower() in user_q:
-                answer = faq["answer"].replace("\n", "<br>")  # format line breaks
+                answer = faq["answer"].replace("\n", "<br>")  # line breaks
                 return jsonify({"answer": answer})
 
     return jsonify({"answer": "Sorry, I can help with menu, timings, location, and seating."})

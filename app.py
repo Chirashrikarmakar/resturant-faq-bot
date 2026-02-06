@@ -56,9 +56,9 @@ function sendQuick(text) {
 </html>
 """
 
-@app.route("/chat", methods=["POST"])
-def chat():
-    user_q = request.json["question"].lower()
+@app.route("/", methods=["GET"])
+def home():
+    return render_template_string(HTML_PAGE)
 
     for faq in faqs:
         # Check all keywords for each FAQ

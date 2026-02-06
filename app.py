@@ -64,10 +64,10 @@ button.send-btn:hover { background:#5C2D00; }
 
 <div id="buttons">
 <button class="quick-btn" onclick="sendQuick('Menu')">Menu</button>
+<button class="quick-btn" onclick="sendQuick('Vegetarian Options')">Vegetarian Options</button>
 <button class="quick-btn" onclick="sendQuick('Opening Hours')">Opening Hours</button>
 <button class="quick-btn" onclick="sendQuick('Location')">Location</button>
 <button class="quick-btn" onclick="sendQuick('Seating')">Seating</button>
-<button class="quick-btn" onclick="sendQuick('Vegetarian Options')">Vegetarian Options</button>
 <button class="quick-btn" onclick="sendQuick('Rooftop')">Rooftop</button>
 <button class="quick-btn" onclick="sendQuick('Home Delivery')">Home Delivery</button>
 </div>
@@ -143,6 +143,21 @@ def chat():
     # Thank you messages
     if any(phrase in user_q for phrase in ["thank you","thanks","thx"]):
         return jsonify({"answer":"You're welcome! Have a nice day 😊"})
+
+    # Vegetarian menu option
+    if "vegetarian options" in user_q or "veg" in user_q:
+        for faq in faqs:
+            if faq["question"].lower() == "menu":
+                veg_text = ""
+                for line in faq["answer"].split("\n"):
+                    line = line.strip()
+                    if line.startswith("- "):
+                        item_name = line[2:].split(" - ")[0].strip()
+                        if item_name in VEG_ITEMS:
+                            veg_text += line + "\n"
+                    elif line.endswith(":"):
+                        veg_text += line + "\n"
+                return jsonify({"answer": veg_text.strip()})
 
     # Check FAQs
     for faq in faqs:

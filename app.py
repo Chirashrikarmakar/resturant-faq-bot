@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, render_template_string, request, jsonify
 import json
 
 app = Flask(__name__)
@@ -9,7 +9,7 @@ with open("faqs.json", "r") as f:
 
 faqs = data["faqs"]
 
-# Simple home page
+# HTML with buttons
 HTML_PAGE = """
 <!DOCTYPE html>
 <html>
@@ -24,19 +24,15 @@ HTML_PAGE = """
 </head>
 <body>
     <h2>Restaurant FAQ Bot</h2>
-
     <input id="userInput" placeholder="Ask a question..." />
     <button onclick="send()">Send</button>
-
     <p id="response"></p>
-
     <div>
         <button onclick="sendQuick('Menu')">Menu</button>
         <button onclick="sendQuick('Opening Hours')">Opening Hours</button>
         <button onclick="sendQuick('Location')">Location</button>
         <button onclick="sendQuick('Seating')">Seating</button>
     </div>
-
 <script>
 function send() {
     let q = document.getElementById("userInput").value;
@@ -60,19 +56,18 @@ function sendQuick(text) {
 </html>
 """
 
+@app.route("/", methods=["GET"])
+def home():
+    return render_template_string(HTML_PAGE)
 
 @app.route("/chat", methods=["POST"])
 def chat():
     user_q = request.json["question"].lower()
-
     for faq in faqs:
         faq_question = faq["question"].lower()
-        # Simple substring match
         if faq_question in user_q or user_q in faq_question:
             return jsonify({"answer": faq["answer"]})
-
     return jsonify({"answer": "Sorry, I can help with menu, timings, location, and seating."})
-
 
 if __name__ == "__main__":
     app.run(debug=True)

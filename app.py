@@ -4,17 +4,16 @@ import os
 
 app = Flask(__name__)
 
-# Safe path to faqs.json
+# Load FAQs from the same folder
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-faqs_path = os.path.join(BASE_DIR, "faqs.json")
+faqs_file = os.path.join(BASE_DIR, "faqs.json")
 
-# Load FAQs
-with open(faqs_path, "r", encoding="utf-8") as f:
+with open(faqs_file, "r", encoding="utf-8") as f:
     data = json.load(f)
 
 faqs = data["faqs"]
 
-# HTML page with proper layout
+# HTML page with fixed layout
 HTML_PAGE = """
 <!DOCTYPE html>
 <html>
@@ -22,24 +21,22 @@ HTML_PAGE = """
     <title>Restaurant FAQ Bot</title>
     <style>
         body { font-family: Arial; background:#f5f5f5; display:flex; justify-content:center; padding:20px; }
-        #container { width: 600px; background:white; padding:20px; border-radius:10px; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
+        #container { width: 600px; background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.2); }
         h2 { text-align:center; }
         #userInput { padding:10px; width:70%; margin-right:5px; }
         button { padding:10px 15px; margin:5px; border:none; border-radius:5px; background:#007BFF; color:white; cursor:pointer; }
         button:hover { background:#0056b3; }
-        #response { margin-top: 20px; white-space: pre-line; font-size:16px; line-height:1.5; }
+        #response { margin-top:20px; white-space: pre-line; font-size:16px; line-height:1.5; text-align:left; }
         #buttons { text-align:center; margin-top:10px; }
     </style>
 </head>
 <body>
     <div id="container">
         <h2>Restaurant FAQ Bot</h2>
-
         <div>
             <input id="userInput" placeholder="Ask a question..." />
             <button onclick="send()">Send</button>
         </div>
-
         <div id="buttons">
             <button onclick="sendQuick('Menu')">Menu</button>
             <button onclick="sendQuick('Opening Hours')">Opening Hours</button>
@@ -49,7 +46,6 @@ HTML_PAGE = """
             <button onclick="sendQuick('Rooftop')">Rooftop</button>
             <button onclick="sendQuick('Home Delivery')">Home Delivery</button>
         </div>
-
         <div id="response"></div>
     </div>
 
@@ -76,21 +72,19 @@ function sendQuick(text) {
 </html>
 """
 
-# Homepage route
 @app.route("/", methods=["GET"])
 def home():
     return render_template_string(HTML_PAGE)
 
-# Chat route
 @app.route("/chat", methods=["POST"])
 def chat():
     user_q = request.json.get("question", "").lower()
-
     for faq in faqs:
         for keyword in faq.get("keywords", []):
             if keyword.lower() in user_q:
-                answer = faq["answer"].replace("\n", "<br>")  # format line breaks
+                answer = faq["answer"].replace("\n", "<br>")
                 return jsonify({"answer": answer})
-
     return jsonify({"answer": "Sorry, I can help with menu, timings, location, and seating."})
 
+if __name__ == "__main__":
+    app.run(debug=True)

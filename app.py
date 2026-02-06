@@ -1,15 +1,20 @@
 from flask import Flask, render_template_string, request, jsonify
 import json
+import os
 
 app = Flask(__name__)
 
+# Safe path to faqs.json
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+faqs_path = os.path.join(BASE_DIR, "faqs.json")
+
 # Load FAQs
-with open("faqs.json", "r") as f:
+with open(faqs_path, "r") as f:
     data = json.load(f)
 
 faqs = data["faqs"]
 
-# HTML with buttons
+# HTML page with buttons
 HTML_PAGE = """
 <!DOCTYPE html>
 <html>
@@ -24,15 +29,19 @@ HTML_PAGE = """
 </head>
 <body>
     <h2>Restaurant FAQ Bot</h2>
+
     <input id="userInput" placeholder="Ask a question..." />
     <button onclick="send()">Send</button>
+
     <p id="response"></p>
+
     <div>
         <button onclick="sendQuick('Menu')">Menu</button>
         <button onclick="sendQuick('Opening Hours')">Opening Hours</button>
         <button onclick="sendQuick('Location')">Location</button>
         <button onclick="sendQuick('Seating')">Seating</button>
     </div>
+
 <script>
 function send() {
     let q = document.getElementById("userInput").value;
@@ -56,15 +65,22 @@ function sendQuick(text) {
 </html>
 """
 
+# Homepage route
 @app.route("/", methods=["GET"])
 def home():
     return render_template_string(HTML_PAGE)
 
+# Chat route
+@app.route("/chat", methods=["POST"])
+def chat():
+    user_q = request.json.get("question", "").lower()
+
     for faq in faqs:
-        # Check all keywords for each FAQ
         for keyword in faq.get("keywords", []):
             if keyword.lower() in user_q:
                 return jsonify({"answer": faq["answer"]})
 
     return jsonify({"answer": "Sorry, I can help with menu, timings, location, and seating."})
 
+if __name__ == "__main__":
+    app.run(debug=True)

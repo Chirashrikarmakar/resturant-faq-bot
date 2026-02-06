@@ -89,10 +89,8 @@ def chat():
     for faq in faqs:
         for keyword in faq.get("keywords", []):
             if keyword.lower() in user_q:
-                answer = faq["answer"].replace("\n", "<br>")  # line breaks
+                answer = faq["answer"].replace("\n", "<br>")  # format line breaks
                 return jsonify({"answer": answer})
 
     return jsonify({"answer": "Sorry, I can help with menu, timings, location, and seating."})
 
-if __name__ == "__main__":
-    app.run(debug=True)

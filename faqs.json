@@ -1,6 +1,11 @@
 {
   "faqs": [
     {
+      "question": "What is on the menu?",
+      "keywords": ["menu", "food", "dishes", "items"],
+      "answer": "🍽️ Starters:\n- Bruschetta\n- Garlic Bread\n- Soup of the Day\n\n🥗 Salads:\n- Caesar Salad\n- Greek Salad\n- Garden Salad\n\n🍝 Main Course:\n- Margherita Pizza\n- Spaghetti Bolognese\n- Grilled Chicken\n- Veggie Burger\n\n🍰 Desserts:\n- Chocolate Lava Cake\n- Tiramisu\n- Ice Cream Sundae\n\n🥤 Drinks:\n- Fresh Juice\n- Soft Drinks\n- Coffee\n- Tea"
+    },
+    {
       "question": "What are your opening hours?",
       "keywords": ["opening hours", "hours", "timing", "time"],
       "answer": "We are open from 10 AM to 10 PM every day."

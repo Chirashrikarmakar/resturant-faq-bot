@@ -1,5 +1,5 @@
 from flask import Flask, render_template_string, request, jsonify
-import json, os
+import json
 
 app = Flask(__name__)
 
@@ -7,7 +7,7 @@ app = Flask(__name__)
 with open("faqs.json", "r", encoding="utf-8") as f:
     faqs = json.load(f)["faqs"]
 
-# Veg / Non-Veg for menu coloring
+# Veg / Non-Veg items for menu coloring
 VEG_ITEMS = ["Bruschetta","Garlic Bread","Soup of the Day","Caesar Salad","Greek Salad","Garden Salad","Margherita Pizza","Veggie Burger","Chocolate Lava Cake","Tiramisu","Ice Cream Sundae","Fresh Juice","Soft Drinks","Coffee","Tea"]
 NON_VEG_ITEMS = ["Spaghetti Bolognese","Grilled Chicken"]
 
@@ -81,8 +81,9 @@ function appendMessage(text, sender){
     const chatBox = document.getElementById("chat-box");
     let bubble = document.createElement("div");
     bubble.className = 'message ' + sender;
-    // Format menu if message contains Menu
-    if(sender==='bot' && text.toLowerCase().includes("🍽️")){
+
+    // Format menu
+    if(sender==='bot' && text.includes("🍽️")){
         text = text.split("\\n").map(line=>{
             line=line.trim();
             if(line.endsWith(":")) return '<span class="category">'+line+'</span>';
@@ -96,6 +97,7 @@ function appendMessage(text, sender){
             return '';
         }).join('<br>');
     }
+
     bubble.innerHTML = text;
     chatBox.appendChild(bubble);
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -133,16 +135,29 @@ def home():
 @app.route("/chat", methods=["POST"])
 def chat():
     user_q = request.json.get("question","").strip().lower()
+
+    # Greetings
+    if any(greet in user_q for greet in ["hi","hello","hey","hola"]):
+        return jsonify({"answer":"Hello! 👋 Welcome to Hummus Kitchen. How can I help you today?"})
+
+    # Thank you messages
+    if any(phrase in user_q for phrase in ["thank you","thanks","thx"]):
+        return jsonify({"answer":"You're welcome! Have a nice day 😊"})
+
+    # Check FAQs
     for faq in faqs:
         q_lower = faq["question"].lower()
         keywords = [k.lower() for k in faq.get("keywords",[])]
         if user_q == q_lower or user_q in keywords:
             return jsonify({"answer": faq["answer"]})
-    # Fallback menu if button clicked
+
+    # Fallback menu if Menu button clicked
     if "menu" in user_q:
         for faq in faqs:
             if faq["question"].lower()=="menu":
                 return jsonify({"answer": faq["answer"]})
+
+    # Default fallback
     return jsonify({"answer":"Sorry, I can help with menu, timings, location, and seating."})
 
 if __name__=="__main__":

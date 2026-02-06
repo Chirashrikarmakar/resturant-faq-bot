@@ -56,18 +56,15 @@ function sendQuick(text) {
 </html>
 """
 
-@app.route("/", methods=["GET"])
-def home():
-    return render_template_string(HTML_PAGE)
-
 @app.route("/chat", methods=["POST"])
 def chat():
     user_q = request.json["question"].lower()
+
     for faq in faqs:
-        faq_question = faq["question"].lower()
-        if faq_question in user_q or user_q in faq_question:
-            return jsonify({"answer": faq["answer"]})
+        # Check all keywords for each FAQ
+        for keyword in faq.get("keywords", []):
+            if keyword.lower() in user_q:
+                return jsonify({"answer": faq["answer"]})
+
     return jsonify({"answer": "Sorry, I can help with menu, timings, location, and seating."})
 
-if __name__ == "__main__":
-    app.run(debug=True)

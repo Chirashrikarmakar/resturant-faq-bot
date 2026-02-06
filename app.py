@@ -4,10 +4,10 @@ import json, os
 app = Flask(__name__)
 
 # Load FAQs
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(BASE_DIR, "faqs.json"), "r", encoding="utf-8") as f:
+with open("faqs.json", "r", encoding="utf-8") as f:
     faqs = json.load(f)["faqs"]
 
+# Veg / Non-Veg items for menu coloring
 VEG_ITEMS = ["Bruschetta","Garlic Bread","Soup of the Day","Caesar Salad","Greek Salad","Garden Salad","Margherita Pizza","Veggie Burger","Chocolate Lava Cake","Tiramisu","Ice Cream Sundae","Fresh Juice","Soft Drinks","Coffee","Tea"]
 NON_VEG_ITEMS = ["Spaghetti Bolognese","Grilled Chicken"]
 
@@ -17,9 +17,9 @@ HTML_PAGE = """
 <head>
     <title>Hummus Kitchen FAQ Bot</title>
     <style>
-        body { font-family:Arial,sans-serif; text-align:center; background:#f2f2f2; padding:20px; }
-        #container { width:700px; background:#fff; margin:0 auto; border-radius:12px; padding:25px; box-shadow:0 5px 20px rgba(0,0,0,0.1); }
-        .welcome-header { color:#7B3F00; margin-bottom:25px; }
+        body { font-family:Arial,sans-serif; background:#f2f2f2; padding:20px; }
+        #container { width:700px; margin:0 auto; background:#fff; border-radius:12px; padding:25px; box-shadow:0 5px 20px rgba(0,0,0,0.1); }
+        .welcome-header { color:#7B3F00; text-align:center; margin-bottom:25px; }
         .welcome-header h1 { font-size:36px; margin:0; }
         .welcome-header h2 { font-size:28px; margin:0; }
         .welcome-header h3 { font-size:20px; margin:0; }
@@ -27,7 +27,7 @@ HTML_PAGE = """
         input { padding:12px; width:70%; font-size:16px; border-radius:8px 0 0 8px; border:1px solid #ccc; }
         button.send-btn { padding:12px 20px; border:none; background:#7B3F00; color:white; border-radius:0 8px 8px 0; cursor:pointer; }
         button.send-btn:hover { background:#5C2D00; }
-        #buttons { margin:15px 0; }
+        #buttons { text-align:center; margin:15px 0; }
         .quick-btn { margin:5px 3px; padding:10px 15px; border:none; border-radius:6px; background:#7B3F00; color:white; cursor:pointer; }
         .quick-btn:hover { background:#5C2D00; }
         #response { text-align:left; max-height:500px; overflow-y:auto; padding:10px; border:1px solid #ccc; border-radius:8px; background:#fafafa; }
@@ -66,8 +66,8 @@ HTML_PAGE = """
 </div>
 
 <script>
-const VEG_ITEMS = {{ veg_items }};
-const NON_VEG_ITEMS = {{ nonveg_items }};
+const VEG_ITEMS = ["Bruschetta","Garlic Bread","Soup of the Day","Caesar Salad","Greek Salad","Garden Salad","Margherita Pizza","Veggie Burger","Chocolate Lava Cake","Tiramisu","Ice Cream Sundae","Fresh Juice","Soft Drinks","Coffee","Tea"];
+const NON_VEG_ITEMS = ["Spaghetti Bolognese","Grilled Chicken"];
 
 function sendQuick(text){
     document.getElementById("userInput").value=text;
@@ -83,6 +83,8 @@ function send(){
     }).then(res=>res.json())
       .then(data=>{
           let text = data.answer;
+
+          // Format menu
           if(q.toLowerCase().includes("menu")){
               text = text.split("\\n").map(line=>{
                   line=line.trim();
@@ -99,6 +101,7 @@ function send(){
           } else {
               text = text.replace(/\\n/g,"<br>");
           }
+
           document.getElementById("response").innerHTML = text;
           document.getElementById("response").scrollTop = 0;
       });
@@ -110,7 +113,7 @@ function send(){
 
 @app.route("/", methods=["GET"])
 def home():
-    return render_template_string(HTML_PAGE, veg_items=VEG_ITEMS, nonveg_items=NON_VEG_ITEMS)
+    return render_template_string(HTML_PAGE)
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -120,7 +123,7 @@ def chat():
         keywords = [k.lower() for k in faq.get("keywords",[])]
         if user_q == q_lower or user_q in keywords:
             return jsonify({"answer": faq["answer"]})
-    # Always fallback to menu if button is Menu
+    # fallback menu
     if "menu" in user_q:
         for faq in faqs:
             if faq["question"].lower() == "menu":

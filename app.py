@@ -1,10 +1,9 @@
 from flask import Flask, render_template_string, request, jsonify
-import json
-import os
+import json, os
 
 app = Flask(__name__)
 
-# Load FAQs from the same folder
+# Load FAQs
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 faqs_file = os.path.join(BASE_DIR, "faqs.json")
 
@@ -13,39 +12,115 @@ with open(faqs_file, "r", encoding="utf-8") as f:
 
 faqs = data["faqs"]
 
-# HTML page with fixed layout
+# HTML page with chocolate brown theme
 HTML_PAGE = """
 <!DOCTYPE html>
 <html>
 <head>
     <title>Restaurant FAQ Bot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial; background:#f5f5f5; display:flex; justify-content:center; padding:20px; }
-        #container { width: 600px; background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.2); }
-        h2 { text-align:center; }
-        #userInput { padding:10px; width:70%; margin-right:5px; }
-        button { padding:10px 15px; margin:5px; border:none; border-radius:5px; background:#007BFF; color:white; cursor:pointer; }
-        button:hover { background:#0056b3; }
-        #response { margin-top:20px; white-space: pre-line; font-size:16px; line-height:1.5; text-align:left; }
-        #buttons { text-align:center; margin-top:10px; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        #container {
+            width: 700px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align:center;
+            color:#7B3F00; /* Chocolate Brown */
+            margin-bottom: 20px;
+        }
+        #inputContainer {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        #userInput {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px 0 0 8px;
+        }
+        #sendBtn {
+            padding: 12px 20px;
+            background: #7B3F00;
+            color: white;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        #sendBtn:hover {
+            background: #5C2D00;
+        }
+        #buttons {
+            text-align:center;
+            margin-bottom: 20px;
+        }
+        .quick-btn {
+            margin:5px 3px;
+            padding:10px 15px;
+            border:none;
+            border-radius: 6px;
+            background:#7B3F00;
+            color:white;
+            cursor:pointer;
+            font-weight:500;
+            transition: 0.3s;
+        }
+        .quick-btn:hover {
+            background:#5C2D00;
+        }
+        #response {
+            max-height: 450px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .category {
+            background: #7B3F00;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        .item-card {
+            background: #f9f9f9;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin: 6px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
     </style>
 </head>
 <body>
     <div id="container">
         <h2>Restaurant FAQ Bot</h2>
-        <div>
+        <div id="inputContainer">
             <input id="userInput" placeholder="Ask a question..." />
-            <button onclick="send()">Send</button>
+            <button id="sendBtn" onclick="send()">Send</button>
         </div>
+
         <div id="buttons">
-            <button onclick="sendQuick('Menu')">Menu</button>
-            <button onclick="sendQuick('Opening Hours')">Opening Hours</button>
-            <button onclick="sendQuick('Location')">Location</button>
-            <button onclick="sendQuick('Seating')">Seating</button>
-            <button onclick="sendQuick('Vegetarian Options')">Vegetarian Options</button>
-            <button onclick="sendQuick('Rooftop')">Rooftop</button>
-            <button onclick="sendQuick('Home Delivery')">Home Delivery</button>
+            <button class="quick-btn" onclick="sendQuick('Menu')">Menu</button>
+            <button class="quick-btn" onclick="sendQuick('Opening Hours')">Opening Hours</button>
+            <button class="quick-btn" onclick="sendQuick('Location')">Location</button>
+            <button class="quick-btn" onclick="sendQuick('Seating')">Seating</button>
+            <button class="quick-btn" onclick="sendQuick('Vegetarian Options')">Vegetarian Options</button>
+            <button class="quick-btn" onclick="sendQuick('Rooftop')">Rooftop</button>
+            <button class="quick-btn" onclick="sendQuick('Home Delivery')">Home Delivery</button>
         </div>
+
         <div id="response"></div>
     </div>
 
@@ -59,7 +134,20 @@ function send() {
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById("response").innerHTML = data.answer;
+        let text = data.answer;
+
+        // Format Menu nicely
+        if(q.toLowerCase().includes("menu")) {
+            text = text.split("\\n").map(line => {
+                if(line.endsWith(":")) return '<div class="category">'+line+'</div>';
+                return '<div class="item-card">'+line+'</div>';
+            }).join('');
+        } else {
+            text = text.replace(/\\n/g, "<br>");
+        }
+
+        document.getElementById("response").innerHTML = text;
+        document.getElementById("response").scrollTop = 0;
     });
 }
 
@@ -82,8 +170,7 @@ def chat():
     for faq in faqs:
         for keyword in faq.get("keywords", []):
             if keyword.lower() in user_q:
-                answer = faq["answer"].replace("\n", "<br>")
-                return jsonify({"answer": answer})
+                return jsonify({"answer": faq["answer"]})
     return jsonify({"answer": "Sorry, I can help with menu, timings, location, and seating."})
 
 if __name__ == "__main__":

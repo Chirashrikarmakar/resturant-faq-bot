@@ -1,19 +1,14 @@
 {
   "faqs": [
     {
-      "question": "What is on the menu?",
-      "keywords": ["menu", "food", "dishes", "items"],
-      "answer": "🍽️ Starters:\n- Bruschetta\n- Garlic Bread\n- Soup of the Day\n\n🥗 Salads:\n- Caesar Salad\n- Greek Salad\n- Garden Salad\n\n🍝 Main Course:\n- Margherita Pizza\n- Spaghetti Bolognese\n- Grilled Chicken\n- Veggie Burger\n\n🍰 Desserts:\n- Chocolate Lava Cake\n- Tiramisu\n- Ice Cream Sundae\n\n🥤 Drinks:\n- Fresh Juice\n- Soft Drinks\n- Coffee\n- Tea"
+      "question": "Menu",
+      "keywords": ["menu", "food", "dishes"],
+      "answer": "🍽️ Starters:\n- Bruschetta - ₹150\n- Garlic Bread - ₹120\n- Soup of the Day - ₹180\n\n🥗 Salads:\n- Caesar Salad - ₹200\n- Greek Salad - ₹180\n- Garden Salad - ₹150\n\n🍝 Main Course:\n- Margherita Pizza - ₹300\n- Spaghetti Bolognese - ₹350\n- Grilled Chicken - ₹400\n- Veggie Burger - ₹250\n\n🍰 Desserts:\n- Chocolate Lava Cake - ₹180\n- Tiramisu - ₹200\n- Ice Cream Sundae - ₹150\n\n🥤 Drinks:\n- Fresh Juice - ₹100\n- Soft Drinks - ₹60\n- Coffee - ₹80\n- Tea - ₹50"
     },
     {
-      "question": "What are your opening hours?",
+      "question": "Opening Hours",
       "keywords": ["opening hours", "hours", "timing", "time"],
       "answer": "We are open from 10 AM to 10 PM every day."
-    },
-    {
-      "question": "Do you offer home delivery?",
-      "keywords": ["delivery", "home delivery", "deliver"],
-      "answer": "Yes, we offer home delivery within a 5 km radius."
     },
     {
       "question": "Where is the restaurant located?",
@@ -21,18 +16,23 @@
       "answer": "We are located near City Center, Main Road."
     },
     {
+      "question": "Do you offer home delivery?",
+      "keywords": ["home delivery", "delivery", "deliver"],
+      "answer": "Yes, we offer home delivery within a 5 km radius."
+    },
+    {
       "question": "Do you have vegetarian options?",
-      "keywords": ["vegetarian", "veg", "food options"],
+      "keywords": ["vegetarian", "veg options", "veg menu"],
       "answer": "Yes, we have a wide range of vegetarian dishes."
     },
     {
       "question": "Is your hotel rooftop?",
-      "keywords": ["rooftop", "hotel rooftop", "terrace"],
+      "keywords": ["rooftop", "roof", "top floor"],
       "answer": "Yes, we have a beautiful rooftop dining area."
     },
     {
       "question": "How many seats do you have?",
-      "keywords": ["seats", "capacity", "seating"],
+      "keywords": ["seats", "capacity", "guests"],
       "answer": "We have seating capacity for approximately 80 guests."
     }
   ]

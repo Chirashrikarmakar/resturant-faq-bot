@@ -12,7 +12,7 @@ with open(faqs_file, "r", encoding="utf-8") as f:
 
 faqs = data["faqs"]
 
-# HTML page with chocolate brown theme
+# HTML Page
 HTML_PAGE = """
 <!DOCTYPE html>
 <html>
@@ -34,73 +34,17 @@ HTML_PAGE = """
             padding: 25px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
-        h2 {
-            text-align:center;
-            color:#7B3F00; /* Chocolate Brown */
-            margin-bottom: 20px;
-        }
-        #inputContainer {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-        #userInput {
-            flex: 1;
-            padding: 12px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 8px 0 0 8px;
-        }
-        #sendBtn {
-            padding: 12px 20px;
-            background: #7B3F00;
-            color: white;
-            border: none;
-            border-radius: 0 8px 8px 0;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        #sendBtn:hover {
-            background: #5C2D00;
-        }
-        #buttons {
-            text-align:center;
-            margin-bottom: 20px;
-        }
-        .quick-btn {
-            margin:5px 3px;
-            padding:10px 15px;
-            border:none;
-            border-radius: 6px;
-            background:#7B3F00;
-            color:white;
-            cursor:pointer;
-            font-weight:500;
-            transition: 0.3s;
-        }
-        .quick-btn:hover {
-            background:#5C2D00;
-        }
-        #response {
-            max-height: 450px;
-            overflow-y: auto;
-            padding: 10px;
-        }
-        .category {
-            background: #7B3F00;
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            margin-top: 15px;
-        }
-        .item-card {
-            background: #f9f9f9;
-            padding: 10px 12px;
-            border-radius: 8px;
-            margin: 6px 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+        h2 { text-align:center; color:#7B3F00; margin-bottom: 20px; }
+        #inputContainer { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        #userInput { flex:1; padding:12px; font-size:16px; border:1px solid #ccc; border-radius:8px 0 0 8px; }
+        #sendBtn { padding:12px 20px; background:#7B3F00; color:white; border:none; border-radius:0 8px 8px 0; cursor:pointer; font-weight:500; }
+        #sendBtn:hover { background:#5C2D00; }
+        #buttons { text-align:center; margin-bottom:20px; }
+        .quick-btn { margin:5px 3px; padding:10px 15px; border:none; border-radius:6px; background:#7B3F00; color:white; cursor:pointer; font-weight:500; transition:0.3s; }
+        .quick-btn:hover { background:#5C2D00; }
+        #response { max-height:500px; overflow-y:auto; padding:10px; }
+        .category { background: #7B3F00; color: #fff; padding: 8px 12px; border-radius:6px; font-weight:bold; margin-top:15px; font-size:18px; }
+        .item-card { background:#f9f9f9; padding:8px 12px; border-radius:6px; margin:4px 0; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
@@ -128,22 +72,29 @@ HTML_PAGE = """
 function send() {
     let q = document.getElementById("userInput").value;
     fetch("/chat", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({"question": q})
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({"question": q})
     })
     .then(res => res.json())
     .then(data => {
         let text = data.answer;
 
-        // Format Menu nicely
+        // Keep your menu emoji format + prices
         if(q.toLowerCase().includes("menu")) {
             text = text.split("\\n").map(line => {
-                if(line.endsWith(":")) return '<div class="category">'+line+'</div>';
-                return '<div class="item-card">'+line+'</div>';
+                line = line.trim();
+                if(line.endsWith(":")) {
+                    return '<div class="category">'+line+'</div>';
+                } else if(line.startsWith("- ")) {
+                    return '<div class="item-card">'+line.substring(2)+'</div>';
+                } else if(line.length > 0) {
+                    return '<div class="item-card">'+line+'</div>';
+                }
+                return '';
             }).join('');
         } else {
-            text = text.replace(/\\n/g, "<br>");
+            text = text.replace(/\\n/g,"<br>");
         }
 
         document.getElementById("response").innerHTML = text;
@@ -166,12 +117,12 @@ def home():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    user_q = request.json.get("question", "").lower()
+    user_q = request.json.get("question","").lower()
     for faq in faqs:
         for keyword in faq.get("keywords", []):
             if keyword.lower() in user_q:
                 return jsonify({"answer": faq["answer"]})
-    return jsonify({"answer": "Sorry, I can help with menu, timings, location, and seating."})
+    return jsonify({"answer":"Sorry, I can help with menu, timings, location, and seating."})
 
-if __name__ == "__main__":
+if __name__=="__main__":
     app.run(debug=True)

@@ -8,11 +8,11 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(BASE_DIR, "faqs.json"), "r", encoding="utf-8") as f:
     faqs = json.load(f)["faqs"]
 
-# Vegeterian and Non-Veg items for menu coloring
+# Veg / Non-Veg Items for coloring menu
 VEG_ITEMS = ["Bruschetta","Garlic Bread","Soup of the Day","Caesar Salad","Greek Salad","Garden Salad","Margherita Pizza","Veggie Burger","Chocolate Lava Cake","Tiramisu","Ice Cream Sundae","Fresh Juice","Soft Drinks","Coffee","Tea"]
 NON_VEG_ITEMS = ["Spaghetti Bolognese","Grilled Chicken"]
 
-# HTML PAGE
+# HTML Page
 HTML_PAGE = """
 <!DOCTYPE html>
 <html>
@@ -84,6 +84,7 @@ function send() {
     .then(data => {
         let text = data.answer;
 
+        // Format menu with colors
         if(q.toLowerCase().includes("menu")) {
             text = text.split("\\n").map(line => {
                 line=line.trim();
@@ -115,6 +116,7 @@ function sendQuick(text) {
 </html>
 """
 
+# Routes
 @app.route("/", methods=["GET"])
 def home():
     return render_template_string(HTML_PAGE,
@@ -123,13 +125,20 @@ def home():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    user_q = request.json.get("question","").lower().strip()
+    user_q = request.json.get("question","").strip().lower()
     for faq in faqs:
-        for keyword in faq.get("keywords", []):
-            if keyword.lower() in user_q:
-                return jsonify({"answer": faq["answer"]})
-        if faq["question"].lower() in user_q:
+        # Exact match question
+        if faq["question"].lower() == user_q:
             return jsonify({"answer": faq["answer"]})
+        # Match keywords
+        for keyword in faq.get("keywords", []):
+            if keyword.lower() == user_q:
+                return jsonify({"answer": faq["answer"]})
+    # Menu fallback
+    if "menu" in user_q:
+        for faq in faqs:
+            if faq["question"].lower() == "menu":
+                return jsonify({"answer": faq["answer"]})
     return jsonify({"answer":"Sorry, I can help with menu, timings, location, and seating."})
 
 if __name__=="__main__":

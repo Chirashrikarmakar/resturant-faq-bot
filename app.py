@@ -229,6 +229,19 @@ function renderCards(cards) {
         card.appendChild(action);
         container.appendChild(card);
     });
+        // add full-menu button
+        let more = document.createElement('div');
+        more.style.marginTop = '8px';
+        let moreBtn = document.createElement('button');
+        moreBtn.textContent = 'View full menu';
+        moreBtn.style.background = 'transparent';
+        moreBtn.style.border = '0';
+        moreBtn.style.color = '#0b66ff';
+        moreBtn.style.fontWeight = '700';
+        moreBtn.style.cursor = 'pointer';
+        moreBtn.onclick = () => { sendQuick('full menu'); };
+        more.appendChild(moreBtn);
+        container.appendChild(more);
     chat.appendChild(container);
     let clear = document.createElement("div");
     clear.className = "clearfix";
@@ -308,15 +321,19 @@ def chat():
         for keyword in faq.get("keywords", []):
             if keyword.lower() in user_q:
                 # Special: if this is the Menu, return structured cards
-                if faq.get("question", "").lower().strip() == 'menu' or 'menu' in [k.lower() for k in faq.get('keywords', [])]:
-                    # Parse menu items into cards (simple parser)
+                is_menu = faq.get("question", "").lower().strip() == 'menu' or 'menu' in [k.lower() for k in faq.get('keywords', [])]
+                if is_menu:
+                    # If the user explicitly asks for the full menu, return the full text
+                    if 'full' in user_q or ('all' in user_q and 'menu' in user_q) or ('view' in user_q and 'menu' in user_q):
+                        answer = faq["answer"].replace("\n","<br>")
+                        return jsonify({"answer": answer})
+                    # Otherwise return a compact set of cards parsed from the menu
                     lines = faq["answer"].splitlines()
                     cards = []
                     current_cat = None
                     for ln in lines:
                         ln = ln.strip()
                         if not ln: continue
-                        # Category lines often start with emoji or end with ':'
                         if ln.endswith(':') or (len(ln) > 0 and (ln[0] in '🍽️🥗🍝🍰🥤')):
                             current_cat = ln.replace(':','')
                             continue
@@ -327,7 +344,6 @@ def chat():
                             elif ' -' in part:
                                 name, price = part.rsplit(' -', 1)
                             else:
-                                # fallback
                                 pieces = part.split(' - ')
                                 name = pieces[0].strip()
                                 price = pieces[1].strip() if len(pieces) > 1 else ''
@@ -336,7 +352,6 @@ def chat():
                                 'subtitle': (current_cat or '') + ((' • ' + price.strip()) if price else ''),
                                 'cta': 'Order'
                             })
-                    # limit to first 8 cards for display
                     return jsonify({'type':'cards', 'cards': cards[:8]})
                 answer = faq["answer"].replace("\n","<br>")
                 return jsonify({"answer": answer})

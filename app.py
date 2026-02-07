@@ -1,178 +1,123 @@
 from flask import Flask, render_template_string, request, jsonify
 import json
+import os
 
 app = Flask(__name__)
 
-# Load FAQs
-with open("faqs.json", "r", encoding="utf-8") as f:
-    faqs = json.load(f)["faqs"]
+# Load FAQs and menu
+with open("faqs.json", "r") as f:
+    data = json.load(f)
 
-# Veg / Non-Veg items for menu coloring
-VEG_ITEMS = ["Bruschetta","Garlic Bread","Soup of the Day","Caesar Salad","Greek Salad","Garden Salad","Margherita Pizza","Veggie Burger","Chocolate Lava Cake","Tiramisu","Ice Cream Sundae","Fresh Juice","Soft Drinks","Coffee","Tea"]
-NON_VEG_ITEMS = ["Spaghetti Bolognese","Grilled Chicken"]
+faqs = data["faqs"]
 
+# HTML + CSS (WhatsApp-style chat)
 HTML_PAGE = """
 <!DOCTYPE html>
 <html>
 <head>
-<title>Hummus Kitchen Chat</title>
-<style>
-body { font-family:Arial,sans-serif; background:#f2f2f2; padding:20px; }
-#container { width:700px; margin:0 auto; background:#fff; border-radius:12px; padding:20px; box-shadow:0 5px 20px rgba(0,0,0,0.1); }
-.welcome-header { color:#7B3F00; text-align:center; margin-bottom:20px; }
-.welcome-header h1 { font-size:36px; margin:0; }
-.welcome-header h2 { font-size:28px; margin:0; }
-.welcome-header h3 { font-size:20px; margin:0; }
-
-/* Chat area */
-#chat-box { height:400px; overflow-y:auto; border:1px solid #ccc; padding:10px; border-radius:8px; background:#fafafa; margin-bottom:15px; }
-
-/* Message bubbles */
-.message { padding:10px 15px; border-radius:20px; margin:5px; max-width:70%; clear:both; display:inline-block; }
-.user { background:#7B3F00; color:white; float:right; text-align:right; }
-.bot { background:#e0e0e0; color:black; float:left; text-align:left; }
-
-input { padding:12px; width:70%; font-size:16px; border-radius:8px 0 0 8px; border:1px solid #ccc; }
-button.send-btn { padding:12px 20px; border:none; background:#7B3F00; color:white; border-radius:0 8px 8px 0; cursor:pointer; }
-button.send-btn:hover { background:#5C2D00; }
-
-#buttons { text-align:center; margin-bottom:10px; }
-.quick-btn { margin:5px 3px; padding:10px 15px; border:none; border-radius:6px; background:#7B3F00; color:white; cursor:pointer; }
-.quick-btn:hover { background:#5C2D00; }
-
-.category { background:#7B3F00; color:#fff; padding:6px 10px; border-radius:6px; font-weight:bold; margin-top:10px; font-size:16px; display:block; }
-.item-card { padding:4px 8px; border-radius:6px; margin:2px 0; display:block; }
-.veg { color:green; }
-.nonveg { color:red; }
-.dessert-drink { color:#7B3F00; }
-</style>
+    <title>Restaurant FAQ Bot</title>
+    <style>
+        body { font-family: Arial; background:#f5f5f5; margin:0; padding:0; }
+        .header { text-align:center; background:#8B4513; color:#fff; padding:20px; }
+        .header h1 { margin:0; font-size:40px; }
+        .header h2 { margin:5px 0; font-size:28px; font-weight:normal; }
+        .header h3 { margin:0; font-size:20px; font-weight:normal; }
+        .chat-container { max-width:600px; margin:20px auto; background:#fff; border-radius:10px; padding:20px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+        .message { padding:10px 15px; border-radius:20px; margin:5px 0; max-width:80%; clear:both; }
+        .user { background:#007BFF; color:#fff; float:right; text-align:right; }
+        .bot { background:#eee; color:#333; float:left; text-align:left; }
+        input { width:70%; padding:10px; border-radius:20px; border:1px solid #ccc; }
+        button { padding:10px 15px; border:none; border-radius:20px; background:#8B4513; color:#fff; cursor:pointer; margin-left:5px; }
+        button:hover { background:#A0522D; }
+        .quick-buttons { text-align:center; margin:10px 0; }
+        .menu-item { font-weight:bold; margin:5px 0; }
+        .veg { color:green; }
+        .nonveg { color:red; }
+        .dessert-drink { color:#8B4513; }
+        .clearfix { clear:both; }
+    </style>
 </head>
 <body>
-<div id="container">
-<div class="welcome-header">
-<h1>Welcome</h1>
-<h2>Hummus Kitchen</h2>
-<h3>Your own partner</h3>
-</div>
-
-<div id="chat-box"></div>
-
-<div>
-<input id="userInput" placeholder="Type a message..." />
-<button class="send-btn" onclick="send()">Send</button>
-</div>
-
-<div id="buttons">
-<button class="quick-btn" onclick="sendQuick('Menu')">Menu</button>
-<button class="quick-btn" onclick="sendQuick('Vegetarian Options')">Vegetarian Options</button>
-<button class="quick-btn" onclick="sendQuick('Opening Hours')">Opening Hours</button>
-<button class="quick-btn" onclick="sendQuick('Location')">Location</button>
-<button class="quick-btn" onclick="sendQuick('Seating')">Seating</button>
-<button class="quick-btn" onclick="sendQuick('Rooftop')">Rooftop</button>
-<button class="quick-btn" onclick="sendQuick('Home Delivery')">Home Delivery</button>
-</div>
-</div>
-
+    <div class="header">
+        <h1>Welcome</h1>
+        <h2>Hummus Kitchen</h2>
+        <h3>Your friendly partner</h3>
+    </div>
+    <div class="chat-container">
+        <div id="chat"></div>
+        <input id="userInput" placeholder="Type your question..." />
+        <button onclick="send()">Send</button>
+        <div class="quick-buttons">
+            <button onclick="sendQuick('Menu')">Menu</button>
+            <button onclick="sendQuick('Vegetarian')">Vegetarian</button>
+            <button onclick="sendQuick('Opening Hours')">Opening Hours</button>
+            <button onclick="sendQuick('Location')">Location</button>
+            <button onclick="sendQuick('Seating')">Seating</button>
+            <button onclick="sendQuick('Home Delivery')">Home Delivery</button>
+            <button onclick="sendQuick('Rooftop')">Rooftop</button>
+        </div>
+    </div>
 <script>
-const VEG_ITEMS = ["Bruschetta","Garlic Bread","Soup of the Day","Caesar Salad","Greek Salad","Garden Salad","Margherita Pizza","Veggie Burger","Chocolate Lava Cake","Tiramisu","Ice Cream Sundae","Fresh Juice","Soft Drinks","Coffee","Tea"];
-const NON_VEG_ITEMS = ["Spaghetti Bolognese","Grilled Chicken"];
-
-function appendMessage(text, sender){
-    const chatBox = document.getElementById("chat-box");
-    let bubble = document.createElement("div");
-    bubble.className = 'message ' + sender;
-
-    // Format menu
-    if(sender==='bot' && text.includes("🍽️")){
-        text = text.split("\\n").map(line=>{
-            line=line.trim();
-            if(line.endsWith(":")) return '<span class="category">'+line+'</span>';
-            else if(line.startsWith("- ")){
-                const itemText = line.substring(2);
-                const itemName = itemText.split(" - ")[0].trim();
-                if(VEG_ITEMS.includes(itemName)) return '<span class="item-card veg">'+itemText+'</span>';
-                else if(NON_VEG_ITEMS.includes(itemName)) return '<span class="item-card nonveg">'+itemText+'</span>';
-                else return '<span class="item-card dessert-drink">'+itemText+'</span>';
-            } else if(line.length>0) return '<span class="item-card dessert-drink">'+line+'</span>';
-            return '';
-        }).join('<br>');
-    }
-
-    bubble.innerHTML = text;
-    chatBox.appendChild(bubble);
-    chatBox.scrollTop = chatBox.scrollHeight;
+function addMessage(text, sender) {
+    let chat = document.getElementById("chat");
+    let div = document.createElement("div");
+    div.className = "message " + sender;
+    div.innerHTML = text.replace(/\\n/g, "<br>");
+    chat.appendChild(div);
+    let clear = document.createElement("div");
+    clear.className = "clearfix";
+    chat.appendChild(clear);
+    chat.scrollTop = chat.scrollHeight;
 }
 
-function sendQuick(text){
-    document.getElementById("userInput").value=text;
-    send();
-}
-
-function send(){
-    const inputBox = document.getElementById("userInput");
-    const msg = inputBox.value.trim();
-    if(msg==='') return;
-    appendMessage(msg,'user');
-    inputBox.value='';
+function send() {
+    let q = document.getElementById("userInput").value;
+    if(!q) return;
+    addMessage(q, "user");
     fetch("/chat", {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({question:msg})
-    }).then(res=>res.json())
-      .then(data=>{
-          appendMessage(data.answer,'bot');
-      });
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({"question": q})
+    })
+    .then(res => res.json())
+    .then(data => addMessage(data.answer, "bot"));
+    document.getElementById("userInput").value = "";
+}
+
+function sendQuick(text) {
+    document.getElementById("userInput").value = text;
+    send();
 }
 </script>
 </body>
 </html>
 """
 
-@app.route("/", methods=["GET"])
+@app.route("/")
 def home():
     return render_template_string(HTML_PAGE)
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    user_q = request.json.get("question","").strip().lower()
+    user_q = request.json.get("question", "").lower()
 
-    # Greetings
-    if any(greet in user_q for greet in ["hi","hello","hey","hola"]):
-        return jsonify({"answer":"Hello! 👋 Welcome to Hummus Kitchen. How can I help you today?"})
-
-    # Thank you messages
-    if any(phrase in user_q for phrase in ["thank you","thanks","thx"]):
+    # Check for "thank you" or greetings first
+    if any(word in user_q for word in ["thank", "thanks"]):
         return jsonify({"answer":"You're welcome! Have a nice day 😊"})
+    elif any(word in user_q for word in ["hi","hello","hey"]):
+        return jsonify({"answer":"Hello! How can I help you today?"})
 
-    # Menu handling (full menu or vegetarian)
-    if "menu" in user_q or "vegetarian options" in user_q or "veg" in user_q:
-        for faq in faqs:
-            if "menu" in faq["question"].lower() or "🍽️" in faq["question"]:
-                menu_lines = faq["answer"].split("\n")
-                response_lines = []
-                for line in menu_lines:
-                    line = line.strip()
-                    if line.endswith(":"):
-                        response_lines.append(line)
-                    elif line.startswith("- "):
-                        item_name = line[2:].split(" - ")[0].strip()
-                        # Vegetarian button filter
-                        if "vegetarian options" in user_q or "veg" in user_q:
-                            if item_name in VEG_ITEMS:
-                                response_lines.append(line)
-                        else:
-                            response_lines.append(line)
-                return jsonify({"answer":"\n".join(response_lines)})
-
-    # Check other FAQs
+    # Check FAQs
     for faq in faqs:
-        q_lower = faq["question"].lower()
-        keywords = [k.lower() for k in faq.get("keywords",[])]
-        if user_q == q_lower or user_q in keywords:
-            return jsonify({"answer": faq["answer"]})
+        for keyword in faq.get("keywords", []):
+            if keyword.lower() in user_q:
+                answer = faq["answer"].replace("\n","<br>")
+                return jsonify({"answer": answer})
 
-    # Default fallback
+    # Default reply
     return jsonify({"answer":"Sorry, I can help with menu, timings, location, and seating."})
 
+# Deploy-ready for Render
 if __name__=="__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

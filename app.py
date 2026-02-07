@@ -39,12 +39,22 @@ HTML_PAGE = """
         .chat-header .spacer { flex:1; }
         .chat-header .close-btn { background:transparent; border:0; color:#fff; font-size:18px; cursor:pointer; opacity:0.95; }
 
-        .message { padding:12px 16px; border-radius:14px; margin:10px 0; max-width:78%; clear:both; position:relative; display:inline-block; font-size:15px; line-height:1.4; }
+        .message { padding:12px 16px; border-radius:14px; margin:10px 0; max-width:78%; clear:both; position:relative; display:inline-block; font-size:15px; line-height:1.4; opacity:0; transform:translateY(8px); animation: messageIn .26s forwards ease; }
         .user { background:#D2691E; color:#fff; float:right; text-align:right; box-shadow:0 8px 18px rgba(210,105,30,0.18); border-bottom-right-radius:4px; }
         .user .pill { display:inline-block; padding:6px 10px; border-radius:14px; }
 
         .bot { background:#fbfbfd; color:#18212b; float:left; text-align:left; border-radius:12px; padding:14px; max-width:88%; box-shadow:0 8px 22px rgba(6,22,33,0.06); border:1px solid #f1f3f6; }
         .bot .bubble { display:block; }
+
+        /* typing indicator */
+        .typing { display:inline-block; background:#f1f3f6; color:#666; border-radius:14px; padding:10px 14px; margin:10px 0; max-width:60%; }
+        .typing .dots { display:inline-block; width:36px; text-align:center; }
+        .dot { display:inline-block; width:6px; height:6px; margin:0 3px; background:#c1c7d0; border-radius:50%; opacity:0.3; animation: blink 1s infinite; }
+        .dot:nth-child(2) { animation-delay:0.15s }
+        .dot:nth-child(3) { animation-delay:0.3s }
+
+        @keyframes blink { 0% { opacity:0.2 } 50% { opacity:1 } 100% { opacity:0.2 } }
+        @keyframes messageIn { to { opacity:1; transform:translateY(0);} }
 
         .chat-controls { display:flex; gap:8px; align-items:center; padding:14px; background:transparent; }
         #userInput { flex:1; padding:12px 14px; border-radius:26px; border:1px solid #e6e9ee; outline:none; background:#fff; box-shadow:0 6px 18px rgba(2,6,23,0.04); }
@@ -166,18 +176,108 @@ function addMessage(text, sender) {
     chat.scrollTop = chat.scrollHeight;
 }
 
+function renderCards(cards) {
+    let chat = document.getElementById("chat");
+    let container = document.createElement("div");
+    container.className = 'cards';
+    container.style.display = 'grid';
+    container.style.gridTemplateColumns = '1fr';
+    container.style.gap = '10px';
+    cards.forEach(c => {
+        let card = document.createElement('div');
+        card.className = 'card';
+        card.style.border = '1px solid #eef2f6';
+        card.style.borderRadius = '10px';
+        card.style.padding = '12px';
+        card.style.display = 'flex';
+        card.style.alignItems = 'center';
+        card.style.gap = '12px';
+
+        let img = document.createElement('div');
+        img.style.width = '64px';
+        img.style.height = '64px';
+        img.style.borderRadius = '8px';
+        img.style.background = '#f6f8fb';
+        img.style.display = 'flex';
+        img.style.alignItems = 'center';
+        img.style.justifyContent = 'center';
+        img.textContent = c.image ? '' : '🍽️';
+
+        let body = document.createElement('div');
+        body.style.flex = '1';
+        let title = document.createElement('div');
+        title.style.fontWeight = '700';
+        title.textContent = c.title;
+        let subtitle = document.createElement('div');
+        subtitle.style.color = '#6b7280';
+        subtitle.textContent = c.subtitle || '';
+
+        let action = document.createElement('button');
+        action.textContent = c.cta || 'Order';
+        action.style.background = '#8B4513';
+        action.style.color = '#fff';
+        action.style.border = 'none';
+        action.style.padding = '8px 10px';
+        action.style.borderRadius = '8px';
+        action.style.cursor = 'pointer';
+        action.onclick = () => { sendQuick(c.title); };
+
+        body.appendChild(title);
+        body.appendChild(subtitle);
+        card.appendChild(img);
+        card.appendChild(body);
+        card.appendChild(action);
+        container.appendChild(card);
+    });
+    chat.appendChild(container);
+    let clear = document.createElement("div");
+    clear.className = "clearfix";
+    chat.appendChild(clear);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function showTyping() {
+    let chat = document.getElementById('chat');
+    // remove existing typing
+    let existing = document.getElementById('typingIndicator');
+    if (existing) return;
+    let t = document.createElement('div');
+    t.id = 'typingIndicator';
+    t.className = 'typing bot';
+    t.innerHTML = '<span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>';
+    chat.appendChild(t);
+    let clear = document.createElement('div');
+    clear.className = 'clearfix';
+    chat.appendChild(clear);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function hideTyping() {
+    let t = document.getElementById('typingIndicator');
+    if (t) t.remove();
+}
+
 function send() {
     let q = document.getElementById("userInput").value;
     if(!q) return;
     addMessage(q, "user");
+    document.getElementById("userInput").value = "";
+    showTyping();
     fetch("/chat", {
         method: "POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify({"question": q})
     })
     .then(res => res.json())
-    .then(data => addMessage(data.answer, "bot"));
-    document.getElementById("userInput").value = "";
+    .then(data => {
+        hideTyping();
+        if (data.type === 'cards') {
+            // optional short delay to simulate typing
+            setTimeout(() => renderCards(data.cards), 300);
+        } else {
+            setTimeout(() => addMessage(data.answer, "bot"), 300);
+        }
+    });
 }
 
 function sendQuick(text) {
@@ -207,6 +307,37 @@ def chat():
     for faq in faqs:
         for keyword in faq.get("keywords", []):
             if keyword.lower() in user_q:
+                # Special: if this is the Menu, return structured cards
+                if faq.get("question", "").lower().strip() == 'menu' or 'menu' in [k.lower() for k in faq.get('keywords', [])]:
+                    # Parse menu items into cards (simple parser)
+                    lines = faq["answer"].splitlines()
+                    cards = []
+                    current_cat = None
+                    for ln in lines:
+                        ln = ln.strip()
+                        if not ln: continue
+                        # Category lines often start with emoji or end with ':'
+                        if ln.endswith(':') or (len(ln) > 0 and (ln[0] in '🍽️🥗🍝🍰🥤')):
+                            current_cat = ln.replace(':','')
+                            continue
+                        if ln.startswith('-'):
+                            part = ln.lstrip('-').strip()
+                            if ' - ' in part:
+                                name, price = part.rsplit(' - ', 1)
+                            elif ' -' in part:
+                                name, price = part.rsplit(' -', 1)
+                            else:
+                                # fallback
+                                pieces = part.split(' - ')
+                                name = pieces[0].strip()
+                                price = pieces[1].strip() if len(pieces) > 1 else ''
+                            cards.append({
+                                'title': name.strip(),
+                                'subtitle': (current_cat or '') + ((' • ' + price.strip()) if price else ''),
+                                'cta': 'Order'
+                            })
+                    # limit to first 8 cards for display
+                    return jsonify({'type':'cards', 'cards': cards[:8]})
                 answer = faq["answer"].replace("\n","<br>")
                 return jsonify({"answer": answer})
 

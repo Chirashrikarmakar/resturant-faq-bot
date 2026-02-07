@@ -18,10 +18,12 @@ HTML_PAGE = """
     <title>Restaurant FAQ Bot</title>
     <style>
         body { font-family: Arial, Helvetica, sans-serif; background:#f5f5f5; margin:0; padding:0; }
-        .header { text-align:center; background:#8B4513; color:#fff; padding:18px 12px; }
-        .header h1 { margin:0; font-size:28px; }
-        .header h2 { margin:4px 0 0; font-size:16px; font-weight:600; }
-        .header h3 { margin:0; font-size:12px; font-weight:normal; opacity:0.9; }
+        .header { background:#8B4513; color:#fff; padding:14px 12px; }
+        .header .brand { max-width:900px; margin:0 auto; display:flex; align-items:center; gap:12px; text-align:left; }
+        .logo-svg { width:56px; height:56px; flex:0 0 56px; display:block; }
+        .brand-text h1 { margin:0; font-size:18px; font-weight:700; line-height:1; }
+        .brand-text h2 { margin:4px 0 0; font-size:16px; font-weight:700; }
+        .brand-text h3 { margin:4px 0 0; font-size:12px; font-weight:400; opacity:0.95; color:#fff8f0; }
 
         .chat-container { max-width:420px; margin:18px auto; background:transparent; border-radius:12px; padding:0 12px 12px;}
         #chat { background:transparent; padding:12px; max-height:520px; overflow:auto; }
@@ -47,13 +49,47 @@ HTML_PAGE = """
         .nonveg { color:red; }
         .dessert-drink { color:#8B4513; }
         .clearfix { clear:both; }
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .header .brand { gap:10px; }
+            .logo-svg { width:44px; height:44px; }
+            .brand-text h1 { font-size:16px; }
+            .brand-text h2 { font-size:14px; }
+            .chat-container { max-width:100%; margin:12px; padding:0 10px 12px; }
+            #chat { max-height:60vh; }
+        }
+
+        @media (min-width: 481px) and (max-width: 1024px) {
+            .chat-container { max-width:720px; }
+            .logo-svg { width:48px; height:48px; }
+        }
+
+        @media (min-width: 1025px) {
+            .chat-container { max-width:900px; }
+            .brand-text h1 { font-size:22px; }
+            .brand-text h2 { font-size:18px; }
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Welcome</h1>
-        <h2>Hummus Kitchen</h2>
-        <h3>Your friendly partner</h3>
+        <div class="brand">
+            <svg class="logo-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="32" cy="32" r="30" fill="#fff" />
+                <rect x="14" y="22" width="36" height="22" rx="5" fill="#8B4513" />
+                <circle cx="24" cy="32" r="3" fill="#fff" />
+                <circle cx="40" cy="32" r="3" fill="#fff" />
+                <rect x="26" y="38" width="12" height="4" rx="2" fill="#fff" />
+                <!-- simple chef hat -->
+                <path d="M20 18c2-6 12-8 24-2 0 0 6 6-6 8H26c-8 0-6-6-6-6z" fill="#fff" />
+                <rect x="22" y="14" width="20" height="6" rx="3" fill="#fff" />
+            </svg>
+            <div class="brand-text">
+                <h1>Welcome</h1>
+                <h2>Hummus Kitchen</h2>
+                <h3>Your friendly partner</h3>
+            </div>
+        </div>
     </div>
     <div class="chat-container">
         <div id="chat"></div>

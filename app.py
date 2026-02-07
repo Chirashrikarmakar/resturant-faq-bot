@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 
 # Load FAQs and menu
-with open("faqs.json", "r") as f:
+with open("faqs.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
 faqs = data["faqs"]

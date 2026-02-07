@@ -16,6 +16,7 @@ HTML_PAGE = """
 <html>
 <head>
     <title>Restaurant FAQ Bot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body { font-family: Arial, Helvetica, sans-serif; background:#f5f5f5; margin:0; padding:0; }
         .header { background:#8B4513; color:#fff; padding:14px 12px; }
@@ -51,12 +52,24 @@ HTML_PAGE = """
         .clearfix { clear:both; }
         /* Responsive adjustments */
         @media (max-width: 480px) {
-            .header .brand { gap:10px; }
+            .header .brand { gap:10px; padding-right:8px; }
             .logo-svg { width:44px; height:44px; }
             .brand-text h1 { font-size:16px; }
             .brand-text h2 { font-size:14px; }
-            .chat-container { max-width:100%; margin:12px; padding:0 10px 12px; }
-            #chat { max-height:60vh; }
+            .brand-text h3 { font-size:12px; }
+            .chat-container { max-width:100%; margin:8px; padding:0 6px 0; }
+            /* Give chat area room for fixed input controls */
+            #chat { max-height:calc(100vh - 180px); padding-bottom:140px; }
+            .message { font-size:15px; margin:10px 0; }
+            .quick-buttons button { padding:14px 16px; font-size:15px; }
+
+            /* Make controls sticky at bottom on small screens */
+            .chat-controls { position:fixed; left:8px; right:8px; bottom:12px; padding:8px; background:transparent; z-index:40; }
+            .chat-controls > #userInput { border-radius:28px; padding:12px 14px; font-size:15px; }
+            .send-btn { width:48px; height:48px; border-radius:50%; }
+
+            /* Avoid the page content being hidden under fixed controls */
+            body { padding-bottom:180px; }
         }
 
         @media (min-width: 481px) and (max-width: 1024px) {

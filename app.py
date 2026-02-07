@@ -1,127 +1,6 @@
 from flask import Flask, render_template_string, request, jsonify
 import json
 import os
-app = Flask(__name__)
-
-# Load FAQs and menu
-with open("faqs.json", "r", encoding="utf-8") as f:
-    data = json.load(f)
-
-faqs = data["faqs"]
-# HTML + CSS (WhatsApp-style chat)
-HTML_PAGE = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Restaurant FAQ Bot</title>
-    <style>
-        body { font-family: Arial; background:#f5f5f5; margin:0; padding:0; }
-        .header { text-align:center; background:#8B4513; color:#fff; padding:20px; }
-    .header h1 { margin:0; font-size:40px; }
-    .header h2 { margin:5px 0; font-size:28px; font-weight:normal; }
-    .header h3 { margin:0; font-size:20px; font-weight:normal; }
-    .chat-container { max-width:600px; margin:20px auto; background:#fff; border-radius:10px; padding:20px; box-shadow:0 0 10px rgba(0,0,0,0.1);} 
-    .message { padding:10px 15px; border-radius:20px; margin:5px 0; max-width:80%; clear:both; }
-    .user { background:#007BFF; color:#fff; float:right; text-align:right; }
-    .bot { background:#eee; color:#333; float:left; text-align:left; }
-    input { width:70%; padding:10px; border-radius:20px; border:1px solid #ccc; }
-    button { padding:10px 15px; border:none; border-radius:20px; background:#8B4513; color:#fff; cursor:pointer; margin-left:5px; }
-    button:hover { background:#A0522D; }
-    .quick-buttons { text-align:center; margin:10px 0; }
-    .menu-item { font-weight:bold; margin:5px 0; }
-    .veg { color:green; }
-    .nonveg { color:red; }
-    .dessert-drink { color:#8B4513; }
-        .clearfix { clear:both; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Welcome</h1>
-        <h2>Hummus Kitchen</h2>
-        <h3>Your friendly partner</h3>
-    </div>
-    <div class="chat-container">
-        <div id="chat"></div>
-        <input id="userInput" placeholder="Type your question..." />
-        <button onclick="send()">Send</button>
-        <div class="quick-buttons">
-            <button onclick="sendQuick('Menu')">Menu</button>
-            <button onclick="sendQuick('Vegetarian')">Vegetarian</button>
-            <button onclick="sendQuick('Opening Hours')">Opening Hours</button>
-            <button onclick="sendQuick('Location')">Location</button>
-            <button onclick="sendQuick('Seating')">Seating</button>
-            <button onclick="sendQuick('Home Delivery')">Home Delivery</button>
-            <button onclick="sendQuick('Rooftop')">Rooftop</button>
-        </div>
-    </div>
-<script>
-function addMessage(text, sender) {
-    let chat = document.getElementById("chat");
-    let div = document.createElement("div");
-    div.className = "message " + sender;
-    div.innerHTML = text.replace(/\\n/g, "<br>");
-    chat.appendChild(div);
-    let clear = document.createElement("div");
-    clear.className = "clearfix";
-    chat.appendChild(clear);
-    chat.scrollTop = chat.scrollHeight;
-}
-
-function send() {
-    let q = document.getElementById("userInput").value;
-    if(!q) return;
-    addMessage(q, "user");
-    fetch("/chat", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({"question": q})
-    })
-    .then(res => res.json())
-    .then(data => addMessage(data.answer, "bot"));
-    document.getElementById("userInput").value = "";
-}
-
-function sendQuick(text) {
-    document.getElementById("userInput").value = text;
-    send();
-}
-</script>
-</body>
-<html>
-"""
-
-@app.route("/")
-def home():
-    return render_template_string(HTML_PAGE)
-
-@app.route("/chat", methods=["POST"])
-def chat():
-    user_q = request.json.get("question", "").lower()
-
-    # Check for "thank you" or greetings first
-    if any(word in user_q for word in ["thank", "thanks"]):
-        return jsonify({"answer":"You're welcome! Have a nice day 😊"})
-    elif any(word in user_q for word in ["hi","hello","hey"]):
-        return jsonify({"answer":"Hello! How can I help you today?"})
-
-    # Check FAQs
-    for faq in faqs:
-        for keyword in faq.get("keywords", []):
-            if keyword.lower() in user_q:
-                answer = faq["answer"].replace("\n","<br>")
-                return jsonify({"answer": answer})
-
-    # Default reply
-    return jsonify({"answer":"Sorry, I can help with menu, timings, location, and seating."})
-
-    # Deploy-ready for Render
-if __name__=="__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-from flask import Flask, render_template_string, request, jsonify
-import json
-import os
 
 app = Flask(__name__)
 
@@ -131,7 +10,7 @@ with open("faqs.json", "r", encoding="utf-8") as f:
 
 faqs = data["faqs"]
 
-# HTML + CSS (WhatsApp-style chat)
+# Commercial styled HTML + CSS
 HTML_PAGE = """
 <!DOCTYPE html>
 <html>
@@ -167,8 +46,6 @@ HTML_PAGE = """
         .bot { background:#fbfbfd; color:#18212b; float:left; text-align:left; border-radius:12px; padding:14px; max-width:88%; box-shadow:0 8px 22px rgba(6,22,33,0.06); border:1px solid #f1f3f6; }
         .bot .bubble { display:block; }
 
-        /* Quick-action buttons removed per request */
-
         .chat-controls { display:flex; gap:8px; align-items:center; padding:14px; background:transparent; }
         #userInput { flex:1; padding:12px 14px; border-radius:26px; border:1px solid #e6e9ee; outline:none; background:#fff; box-shadow:0 6px 18px rgba(2,6,23,0.04); }
         .send-btn { width:48px; height:48px; border-radius:50%; border:none; background:#0b66ff; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 10px 24px rgba(11,102,255,0.14); }
@@ -190,7 +67,6 @@ HTML_PAGE = """
             /* Give chat area room for fixed input controls */
             #chat { max-height:calc(100vh - 180px); padding-bottom:140px; }
             .message { font-size:15px; margin:10px 0; }
-            .quick-buttons button { padding:14px 16px; font-size:15px; }
 
             /* Make controls sticky at bottom on small screens */
             .chat-controls { position:fixed; left:8px; right:8px; bottom:12px; padding:8px; background:transparent; z-index:40; }
@@ -257,19 +133,9 @@ HTML_PAGE = """
                     <input id="userInput" placeholder="Type your question..." autocomplete="off" />
                     <button class="send-btn" onclick="send()">➤</button>
                 </div>
-                <!-- Quick-action buttons removed -->
+                <!-- Quick-action buttons intentionally removed -->
             </div>
         </div>
-        <div class="quick-buttons">
-            <button onclick="sendQuick('Menu')">Menu</button>
-            <button onclick="sendQuick('Vegetarian')">Vegetarian</button>
-            <button onclick="sendQuick('Opening Hours')">Opening Hours</button>
-            <button onclick="sendQuick('Location')">Location</button>
-            <button onclick="sendQuick('Seating')">Seating</button>
-            <button onclick="sendQuick('Home Delivery')">Home Delivery</button>
-            <button onclick="sendQuick('Rooftop')">Rooftop</button>
-        </div>
-    </div>
 <script>
 function addMessage(text, sender) {
     let chat = document.getElementById("chat");

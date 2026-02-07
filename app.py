@@ -24,7 +24,7 @@ HTML_PAGE = """
         .header h3 { margin:0; font-size:20px; font-weight:normal; }
         .chat-container { max-width:600px; margin:20px auto; background:#fff; border-radius:10px; padding:20px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
         .message { padding:10px 15px; border-radius:20px; margin:5px 0; max-width:80%; clear:both; }
-        .user { background:#007BFF; color:#fff; float:right; text-align:right; }
+        .user { background:#D2691E; color:#fff; float:right; text-align:right; }
         .bot { background:#eee; color:#333; float:left; text-align:left; }
         input { width:70%; padding:10px; border-radius:20px; border:1px solid #ccc; }
         button { padding:10px 15px; border:none; border-radius:20px; background:#8B4513; color:#fff; cursor:pointer; margin-left:5px; }

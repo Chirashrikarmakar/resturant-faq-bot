@@ -46,11 +46,7 @@ HTML_PAGE = """
         .bot { background:#fbfbfd; color:#18212b; float:left; text-align:left; border-radius:12px; padding:14px; max-width:88%; box-shadow:0 8px 22px rgba(6,22,33,0.06); border:1px solid #f1f3f6; }
         .bot .bubble { display:block; }
 
-        /* Quick buttons as modern stacked CTAs */
-        .quick-buttons { display:block; margin:12px auto 0; max-width:100%; background:transparent; border-radius:10px; overflow:hidden; }
-        .quick-buttons .cta-card { background:#fff; border-radius:10px; box-shadow:0 10px 28px rgba(6,22,33,0.06); border:1px solid #eef2f6; overflow:hidden; }
-        .quick-buttons button { display:block; width:100%; padding:14px 16px; border:0; background:transparent; text-align:left; color:#0b66ff; font-weight:700; cursor:pointer; border-top:1px solid #f5f7fa; }
-        .quick-buttons button:first-child { border-top:0; }
+        /* Quick-action buttons removed per request */
 
         .chat-controls { display:flex; gap:8px; align-items:center; padding:14px; background:transparent; }
         #userInput { flex:1; padding:12px 14px; border-radius:26px; border:1px solid #e6e9ee; outline:none; background:#fff; box-shadow:0 6px 18px rgba(2,6,23,0.04); }
@@ -140,17 +136,7 @@ HTML_PAGE = """
                     <input id="userInput" placeholder="Type your question..." autocomplete="off" />
                     <button class="send-btn" onclick="send()">➤</button>
                 </div>
-                <div style="padding:14px 18px 18px">
-                    <div class="quick-buttons">
-                        <div class="cta-card">
-                            <button onclick="sendQuick('Menu')">🍽️ Restaurant Menu</button>
-                            <button onclick="sendQuick('Vegetarian')">🥗 Vegetarian</button>
-                            <button onclick="sendQuick('Opening Hours')">⏰ Opening Hours</button>
-                            <button onclick="sendQuick('Location')">📍 Location</button>
-                            <button onclick="sendQuick('Home Delivery')">🏠 Home Delivery</button>
-                        </div>
-                    </div>
-                </div>
+                <!-- Quick-action buttons removed -->
             </div>
         </div>
         <div class="quick-buttons">

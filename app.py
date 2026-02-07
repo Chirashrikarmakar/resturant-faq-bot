@@ -17,19 +17,31 @@ HTML_PAGE = """
 <head>
     <title>Restaurant FAQ Bot</title>
     <style>
-        body { font-family: Arial; background:#f5f5f5; margin:0; padding:0; }
-        .header { text-align:center; background:#8B4513; color:#fff; padding:20px; }
-        .header h1 { margin:0; font-size:40px; }
-        .header h2 { margin:5px 0; font-size:28px; font-weight:normal; }
-        .header h3 { margin:0; font-size:20px; font-weight:normal; }
-        .chat-container { max-width:600px; margin:20px auto; background:#fff; border-radius:10px; padding:20px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
-        .message { padding:10px 15px; border-radius:20px; margin:5px 0; max-width:80%; clear:both; }
+        body { font-family: Arial, Helvetica, sans-serif; background:#f5f5f5; margin:0; padding:0; }
+        .header { text-align:center; background:#8B4513; color:#fff; padding:18px 12px; }
+        .header h1 { margin:0; font-size:28px; }
+        .header h2 { margin:4px 0 0; font-size:16px; font-weight:600; }
+        .header h3 { margin:0; font-size:12px; font-weight:normal; opacity:0.9; }
+
+        .chat-container { max-width:420px; margin:18px auto; background:transparent; border-radius:12px; padding:0 12px 12px;}
+        #chat { background:transparent; padding:12px; max-height:520px; overflow:auto; }
+
+        .message { padding:12px 16px; border-radius:14px; margin:10px 0; max-width:78%; clear:both; position:relative; display:inline-block; }
         .user { background:#D2691E; color:#fff; float:right; text-align:right; }
-        .bot { background:#eee; color:#333; float:left; text-align:left; }
-        input { width:70%; padding:10px; border-radius:20px; border:1px solid #ccc; }
-        button { padding:10px 15px; border:none; border-radius:20px; background:#8B4513; color:#fff; cursor:pointer; margin-left:5px; }
-        button:hover { background:#A0522D; }
-        .quick-buttons { text-align:center; margin:10px 0; }
+        .user::after { content: 'User'; position:absolute; top:-18px; right:0; font-size:12px; color:#666; }
+
+        .bot { background:#fff; color:#333; float:left; text-align:left; border-radius:12px; padding:14px; max-width:88%; box-shadow:0 6px 18px rgba(0,0,0,0.06); border:1px solid #f0f0f0; }
+
+        /* Quick buttons styled as stacked card like the screenshot */
+        .quick-buttons { display:block; margin:12px auto 0; max-width:100%; background:#fff; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,0.06); overflow:hidden; border:1px solid #f0f0f0; }
+        .quick-buttons button { display:block; width:100%; padding:12px 14px; border:0; background:transparent; text-align:left; color:#1a73e8; font-weight:600; cursor:pointer; border-top:1px solid #f3f3f3; }
+        .quick-buttons button:first-child { border-top:0; }
+
+        .chat-controls { display:flex; gap:8px; align-items:center; padding:10px 0; }
+        #userInput { flex:1; padding:12px 14px; border-radius:30px; border:1px solid #e6e6e6; outline:none; }
+        .send-btn { width:44px; height:44px; border-radius:50%; border:none; background:#8B4513; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .send-btn:hover { background:#A0522D; }
+
         .menu-item { font-weight:bold; margin:5px 0; }
         .veg { color:green; }
         .nonveg { color:red; }
@@ -45,8 +57,10 @@ HTML_PAGE = """
     </div>
     <div class="chat-container">
         <div id="chat"></div>
-        <input id="userInput" placeholder="Type your question..." />
-        <button onclick="send()">Send</button>
+        <div class="chat-controls">
+            <input id="userInput" placeholder="Type your question..." />
+            <button class="send-btn" onclick="send()">➤</button>
+        </div>
         <div class="quick-buttons">
             <button onclick="sendQuick('Menu')">Menu</button>
             <button onclick="sendQuick('Vegetarian')">Vegetarian</button>

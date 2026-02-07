@@ -20,3 +20,5 @@ Restaurant FAQ Bot is a simple web-based chatbot that answers common customer qu
    python app.py
 3. Open your browser and go to
    http://127.0.0.1:5000/
+4. open google tab and go to
+   https://resturant-faq-bot.onrender.com/

@@ -56,6 +56,11 @@ HTML_PAGE = """
         .nonveg { color:red; }
         .dessert-drink { color:#8B4513; }
         .clearfix { clear:both; }
+            /* Quick-action buttons (CTA card) */
+            .quick-buttons { display:block; margin:0; max-width:100%; background:transparent; border-radius:10px; overflow:hidden; }
+            .quick-buttons .cta-card { background:#fff; border-radius:10px; box-shadow:0 10px 28px rgba(6,22,33,0.06); border:1px solid #eef2f6; overflow:hidden; }
+            .quick-buttons button { display:block; width:100%; padding:12px 16px; border:0; background:transparent; text-align:left; color:#0b66ff; font-weight:700; cursor:pointer; border-top:1px solid #f5f7fa; font-size:15px; }
+            .quick-buttons button:first-child { border-top:0; }
         /* Responsive adjustments */
         @media (max-width: 480px) {
             .header .brand { gap:10px; padding-right:8px; }
@@ -133,7 +138,19 @@ HTML_PAGE = """
                     <input id="userInput" placeholder="Type your question..." autocomplete="off" />
                     <button class="send-btn" onclick="send()">➤</button>
                 </div>
-                <!-- Quick-action buttons intentionally removed -->
+                    <div style="padding:14px 18px 18px">
+                        <div class="quick-buttons">
+                            <div class="cta-card">
+                                <button onclick="sendQuick('Menu')">🍽️ Restaurant Menu</button>
+                                <button onclick="sendQuick('Vegetarian')">🥗 Vegetarian</button>
+                                <button onclick="sendQuick('Opening Hours')">⏰ Opening Hours</button>
+                                <button onclick="sendQuick('Location')">📍 Location</button>
+                                <button onclick="sendQuick('Seating')">🪑 Seating</button>
+                                <button onclick="sendQuick('Home Delivery')">🏠 Home Delivery</button>
+                                <button onclick="sendQuick('Rooftop')">🌆 Rooftop</button>
+                            </div>
+                        </div>
+                    </div>
             </div>
         </div>
 <script>

@@ -149,6 +149,7 @@ HTML_PAGE = """
                     <button class="send-btn" onclick="send()">➤</button>
                 </div>
                     <div style="padding:14px 18px 18px">
+                        <h3 style="color: black; font-weight: bold; margin: 0 0 12px 0; text-align: left;">Frequently Asked Questions</h3>
                         <div class="quick-buttons">
                             <div class="cta-card">
                                 <button onclick="sendQuick('Menu')">🍽️ Restaurant Menu</button>

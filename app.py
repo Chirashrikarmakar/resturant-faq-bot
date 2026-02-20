@@ -221,7 +221,7 @@ function renderCards(cards) {
         action.style.padding = '8px 10px';
         action.style.borderRadius = '8px';
         action.style.cursor = 'pointer';
-        action.onclick = () => { sendQuick(c.title); };
+        action.onclick = () => { orderDish(c.title); };
 
         body.appendChild(title);
         body.appendChild(subtitle);
@@ -298,6 +298,21 @@ function sendQuick(text) {
     document.getElementById("userInput").value = text;
     send();
 }
+
+function orderDish(dishName) {
+    addMessage(`I want to order: ${dishName}`, "user");
+    showTyping();
+    fetch("/order", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({"dish": dishName})
+    })
+    .then(res => res.json())
+    .then(data => {
+        hideTyping();
+        setTimeout(() => addMessage(data.message, "bot"), 300);
+    });
+}
 </script>
 </body>
 </html>
@@ -306,6 +321,11 @@ function sendQuick(text) {
 @app.route("/")
 def home():
     return render_template_string(HTML_PAGE)
+
+@app.route("/order", methods=["POST"])
+def order():
+    dish = request.json.get("dish", "")
+    return jsonify({"message": f"✅ {dish} has been added to your order! Would you like to add more items or proceed to checkout?"})
 
 @app.route("/chat", methods=["POST"])
 def chat():

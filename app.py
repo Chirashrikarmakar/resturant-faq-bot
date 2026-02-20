@@ -336,6 +336,8 @@ def chat():
         return jsonify({"answer":"You're welcome! Have a nice day 😊"})
     elif any(word in user_q for word in ["hi","hello","hey"]):
         return jsonify({"answer":"Hello! How can I help you today?"})
+    elif "checkout" in user_q:
+        return jsonify({"answer":"Thank You For Ordering !"})
 
     # Check FAQs
     for faq in faqs:
